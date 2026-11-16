@@ -1,0 +1,55 @@
+{
+  "resume_dir": "%USERPROFILE%\\Documents\\Resume",
+  "resume_glob": "*.pdf",
+  "log_dir": "%USERPROFILE%\\Documents\\Resume",
+  "account_email": "you@university.edu",
+  "mail_url": "https://outlook.cloud.microsoft/mail/",
+  "browser": { "name": "edge", "session": "job" },
+
+  "profile": {
+    "legal_name": "First Middle Last",
+    "preferred_name": "First Last",
+    "phone": "+1 555-555-5555",
+    "address": { "line1": "", "line2": "", "city": "", "state": "", "zip": "", "country": "United States" },
+    "degree_in_progress": "PhD",
+    "school": "",
+    "graduation": "2028-05",
+    "links": { "linkedin": "", "github": "", "website": "", "scholar": "" }
+  },
+
+  "answers": {
+    "source": "Simplify (else Campus / University job board)",
+    "authorized_to_work_us": "Yes",
+    "sponsorship_now_or_future": "Yes",
+    "sponsorship_for_this_internship_only": "No (CPT)",
+    "visa": "F-1",
+    "citizenship": "",
+    "government_employee": "No",
+    "years_experience": "0-2",
+    "eeo": { "gender": "Male", "race": "Decline", "hispanic": "No", "veteran": "Not a veteran", "disability": "Decline" },
+    "willing_to_relocate": "Yes",
+    "start_date": "2027-05-17",
+    "salary_expectation": "Per the company's standard intern compensation",
+    "ai_screening_opt_in": "Yes"
+  },
+
+  "search": {
+    "queries": ["computer vision intern 2027", "GPU kernel intern", "CUDA intern PhD"],
+    "keywords": ["CUDA", "GPU", "3D", "reconstruction", "calibration", "PhD"],
+    "location": "United States",
+    "season": "Summer 2027",
+    "level": "PhD intern"
+  },
+
+  "rules": {
+    "skip_companies": [],
+    "company_caps": { "ExampleCo": 3 },
+    "never_submit": ["CompanyWhoseReferralIsPending"],
+    "linkedin_easy_apply_ok_when_only_route": true
+  },
+
+  "express": {
+    "arbitration": false,
+    "signature_name": "First Middle Last"
+  }
+}
