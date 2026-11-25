@@ -26,7 +26,7 @@ The text after `/job-apply` picks the mode. No argument: show the tracker summar
 
 | Command | Does |
 |---|---|
-| `init [edge\|chrome]` | Sets up remote debugging in the user's real browser and attaches Playwright to it. Section 1 |
+| `init [edge\|chrome] [outlook\|gmail]` | Sets up remote debugging in the user's real browser and attaches Playwright to it. Section 1 |
 | `config` | Creates or edits `$CFG/config.json`: resume folder, profile, standing answers, rules. Section 2 |
 | `discover <hub> [query]` | Finds jobs on a hub, ranks them against the newest resume, and records them in the tracker. Section 3 |
 | `apply [express] <jobs>` | Fills and submits applications. `<jobs>` = URLs, tracker ids, or "the top N". Section 4 |
@@ -36,7 +36,8 @@ The text after `/job-apply` picks the mode. No argument: show the tracker summar
 
 ## 1. init
 
-Run `pwsh -NoProfile -File "$SKILL/scripts/init.ps1" -Browser <edge|chrome>` and follow what it prints:
+Run `pwsh -NoProfile -File "$SKILL/scripts/init.ps1" -Browser <edge|chrome> -Mail <outlook|gmail>` and follow what
+it prints. If the user didn't say which mail receives their verification codes, ask (Outlook or Gmail).
 
 1. It checks for Node, `playwright-cli` (`npm i -g @playwright/cli`), PowerShell 7 and Python, and installs
    `playwright-cli` if it is missing.
@@ -50,7 +51,8 @@ Run `pwsh -NoProfile -File "$SKILL/scripts/init.ps1" -Browser <edge|chrome>` and
 4. It attaches with `playwright-cli -s=<session> attach --cdp=ws://localhost:<port><path>`. The browser shows
    an **Allow** prompt: tell the user to click it. Every re-attach needs another Allow.
 5. Ask the user to install the Simplify Copilot extension and sign in to Simplify, their mail (for
-   verification codes) and any job hub they will use.
+   verification codes; `-Mail` opens it) and any job hub they will use. For Gmail, ask which signed-in account
+   slot holds it (`/u/0/`, `/u/1/`, ...).
 
 If a later command says `The browser '<session>' is not open`, the browser restarted: run
 `init.ps1 -AttachOnly`.
@@ -63,7 +65,8 @@ Goal: a filled `$CFG/config.json` (shape in `$SKILL/config.example.json`).
    `pwsh "$SKILL/scripts/resume.ps1"` prints its path and extracts its text to `$CFG/resume.txt`.
 2. Prefill the profile from the resume text (name, school, degree, graduation date, links). Ask the user
    only for what a resume can't tell you, in one AskUserQuestion batch: work authorization, sponsorship,
-   EEO preferences, how-did-you-hear answer, the account email for new ATS accounts, the mail web URL,
+   EEO preferences, how-did-you-hear answer, the account email for new ATS accounts, the mail web URL
+   (Outlook `https://outlook.cloud.microsoft/mail/` or Gmail `https://mail.google.com/mail/u/<N>/`),
    companies to skip or cap, jobs to fill but never submit.
 3. Show the finished config as a short table and save it. Re-running `config` edits fields in place.
 
@@ -107,7 +110,8 @@ Then:
    password with `run.ps1 <template>.tmpl.js -PwSite <site>` (`__PW__` is replaced from an encrypted
    store; Windows DPAPI at `$CFG/creds/<site>.dpapi`). Never print, log, or echo a password. Read
    verification codes from the user's mail with `cdp/mail-open.js` then
-   `cdp/mail-code.js -Vars @{SENDER='<regex>'; CODE='<regex with one group>'}`.
+   `cdp/mail-code.js -Vars @{SENDER='<regex>'; CODE='<regex with one group>'}`. Both work with Outlook and Gmail
+   (picked from `config.mail_url`); on Gmail they search every tab and Spam, and SENDER also matches the address.
 4. Click Simplify's **Autofill This Page** with `cdp/simplify.js`. Run it **once per page**: a second
    run after manual fixes reverts them.
 5. Dump the form (`cdp/dump-form.js`, or `cdp/wd-dump.js` on Workday) and fix it against config.
