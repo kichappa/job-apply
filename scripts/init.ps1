@@ -1,15 +1,16 @@
 <#
 Set up the user's real Edge/Chrome for automation and attach playwright-cli to it.
 
-  init.ps1 [-Browser edge|chrome] [-Relaunch] [-AttachOnly] [-Session job]
+  init.ps1 [-Browser edge|chrome] [-Mail outlook|gmail] [-Relaunch] [-AttachOnly] [-Session job]
 
 1. Checks prerequisites (node, playwright-cli, python, pypdf/openpyxl) and installs the missing npm/pip bits.
 2. Finds DevToolsActivePort in the browser's user-data dir. If absent: opens <browser>://inspect/#remote-debugging
    so the user can switch on "Allow remote debugging for this browser instance", then waits for it.
 3. -Relaunch: closes the browser and starts it again with flags that keep covered/off-screen windows rendering.
 4. Attaches: playwright-cli -s=<session> attach --cdp=ws://localhost:<port><path>  (user clicks "Allow").
+5. -Mail: opens that web mail so the user can sign in, and prints the mail_url to put in config (verification codes).
 #>
-param([ValidateSet('edge', 'chrome')][string]$Browser, [switch]$Relaunch, [switch]$AttachOnly, [string]$Session)
+param([ValidateSet('edge', 'chrome')][string]$Browser, [ValidateSet('outlook', 'gmail')][string]$Mail, [switch]$Relaunch, [switch]$AttachOnly, [string]$Session)
 $ErrorActionPreference = 'Stop'
 $cfgDir = if ($env:JOB_APPLY_HOME) { $env:JOB_APPLY_HOME } else { Join-Path $HOME '.job-apply' }
 $cfg = if (Test-Path "$cfgDir/config.json") { Get-Content "$cfgDir/config.json" -Raw | ConvertFrom-Json } else { $null }
@@ -76,4 +77,11 @@ $ws = "ws://localhost:$($dt.port)$($dt.path)"
 New-Item -ItemType Directory -Force $cfgDir | Out-Null; Set-Location $cfgDir
 & playwright-cli "-s=$Session" attach "--cdp=$ws" 2>&1 | Where-Object { $_ -notmatch '[═║╔╚]' } | Select-Object -First 6
 & playwright-cli "-s=$Session" tab-list 2>&1 | Where-Object { $_ -notmatch '[═║╔╚]' } | Select-Object -First 8
+if ($Mail) {
+  $mailUrl = if ($Mail -eq 'gmail') { 'https://mail.google.com/mail/u/0/' } else { 'https://outlook.cloud.microsoft/mail/' }
+  "== mail: opening $Mail. Sign in with the account that receives verification codes."
+  if ($Mail -eq 'gmail') { '   Gmail numbers signed-in accounts /u/0/, /u/1/, ... : use the slot of that account in mail_url.' }
+  "   config: `"mail_url`": `"$mailUrl`""
+  if ($exe) { Start-Process $exe -ArgumentList $mailUrl }
+}
 '== next: install the Simplify Copilot extension, sign in to Simplify + your mail + job hubs, then /job-apply config'
